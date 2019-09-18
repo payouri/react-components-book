@@ -1,0 +1,43 @@
+@import '../../commons/styles/main.scss';
+
+.ocMenu {
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 320px;
+    background: #000;
+    transition: transform 225ms ease-in-out;
+    will-change: transform;
+    .grabzone {
+        width: 16px;
+        position: absolute;
+        top: 0;bottom: 0;
+        background: transparent;
+    }
+    &[data-side="left"] {
+        left: 0;
+        transform: translateX(-100%);
+        .grabzone {
+            right: -16px;
+        }
+    }
+    &[data-side="right"] {
+        right: -320px;
+        transform: translateX(0);
+        .grabzone {
+            left: -16px;
+        }
+    }
+    &[data-open="open"] {
+        .grabzone {
+            display: none;
+        }
+        &[data-side="left"] {
+            transform: translateX(0);
+    
+        }
+        &[data-side="right"] {
+            transform: translateX(-100%);
+        }
+
+    }
+}
