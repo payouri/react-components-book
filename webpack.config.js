@@ -1,3 +1,5 @@
+const path = require('path');
+
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -9,6 +11,12 @@ const htmlWebpackPlugin = new HtmlWebPackPlugin({
 module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
+    alias: {
+      components: path.resolve(__dirname, './src/components'),
+      hoc: path.resolve(__dirname, './src/HOC'),
+      js: path.resolve(__dirname, './src/commons/js'),
+      styles: path.resolve(__dirname, './src/commons/styles')
+    }
   },
   module: {
     rules: [
