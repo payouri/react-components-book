@@ -1,6 +1,7 @@
 import React, { Component, Suspense } from 'react'
 import PropTypes from 'prop-types'
 import { debounce } from 'js/utils'
+import { clamp, getFirstTouch } from 'js/functions'
 import Image from 'components/Image/Image';
 
 import styles from './Carousel.scss'
@@ -45,7 +46,7 @@ class Carousel extends Component {
             ready: true,
         })
 
-        window.addEventListener('resize', this.wh);
+        window.addEventListener('resize', this._winHandler);
 
     }
 
@@ -56,7 +57,7 @@ class Carousel extends Component {
             ready: true,
         })
 
-        window.removeEventListener('resize', this.wh);
+        window.removeEventListener('resize', this._winHandler);
 
     }
     
@@ -85,35 +86,42 @@ class Carousel extends Component {
             ready: false,
         }
 
-        
         this.handleMouse = this.handleMouse.bind(this);
         this._calcTranslate = this._calcTranslate.bind(this);
         this._calcWidth = this._calcWidth.bind(this);
+        this._calcOpacity = this._calcOpacity.bind(this);
+        this._calcScale = this._calcScale.bind(this);
+        this._dragDir = this._dragDir.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
+        this._winHandler = debounce(this.onWindowResize, 75, false);
         
-        this.wh = debounce(this.onWindowResize, 125, true);
     }
 
     handleMouse(mouseEvent) {
 
-        const { type, screenX } = mouseEvent;
+        const { type } = mouseEvent;
         const { dragged } = this.state;
+        let { screenX } = mouseEvent;
 
         const isTouch = type.includes('touch');
-
-        if(type == 'mousedown')
+        
+        if(isTouch) { 
+            mouseEvent.persist();
+            screenX = isTouch ? getFirstTouch(mouseEvent)['screenX'] : screenX;
+        }
+        if((type == 'mousedown' || type == 'touchstart') && screenX)
             this.setState({
                 startX: screenX,
                 currentX: screenX,
                 dragged: true,
             })
-        else if((type == 'mouseup' || type == 'mouseleave') && dragged)
+        else if((type == 'mouseup' || type == 'mouseleave' || type == 'touchend' || type == 'touchcancel') && dragged)
             this.setState({
                 startX: 0,
                 currentX: 0,
                 dragged: false,
             })
-        else if(type == 'mousemove' && dragged) {
+        else if((type == 'mousemove' || type == 'touchmove') && dragged) {
             this.setState({
                 currentX: screenX,
             }, () => {
@@ -176,7 +184,27 @@ class Carousel extends Component {
         }
         return width;
     }
+    _calcOpacity(index) {
+
+        const { startX, currentX } = this.state;
+        const { dragThreshold } = this.props;
+
+        if(Math.abs(index) == 1)
+            return Math.abs(currentX - startX) / dragThreshold;
+        else
+            return 1 - Math.abs(currentX - startX) / dragThreshold * .2;
+
+    }
     _calcScale(index) {
+
+        if(index != -1 && index != 1)
+            return 1;
+
+        const { startX, currentX } = this.state;
+        const { dragThreshold } = this.props;
+        
+        const n = .75 + Math.abs(currentX - startX) / dragThreshold * .25;
+        return clamp(n, .8, 1);
 
     }
     _calcTranslate(index) {
@@ -185,6 +213,15 @@ class Carousel extends Component {
         const width = this._calcWidth();
 
         return isNaN(width * index + currentX - startX) ? '0' : `${width * index + currentX - startX}`;
+
+    }
+    _dragDir() {
+
+        const { startX, currentX } = this.state;
+
+        if(currentX - startX == 0) return null;
+        
+        return currentX - startX > 0 ? 1 : -1;
 
     }
     render() {
@@ -212,27 +249,19 @@ class Carousel extends Component {
                 onTouchMove={this.handleMouse}
                 onTouchStart={this.handleMouse}
             >
-                { ready 
-                    // ? images.slice(index > 0 ? index - 1 : 0, index + 2).map((image, i, arr) => (
-                    //     <div key={i} style={{ 
-                    //         position: 'absolute', 
-                    //         top: 0, left: 0, 
-                    //         transform: `translate(${this._calcTranslate( images.indexOf(image) - index ) + 'px'})`,
-                    //         transition: !dragged ? 'transform .225s ease' : 'unset',
-                    //     }}>
-                    //         { 
-                    //             typeof image == 'string'
-                    //                 ? <Slide fallback={image} index={i} height={height} width={width} />
-                    //                 : <Slide {...image} index={i} height={height} width={width} />
-                    //         }
-                    //     </div>
-                    // ))
+                { ready
                     ? images.map((image, i) => (
                         <div key={i} style={{ 
                             position: 'absolute', 
                             top: 0, left: 0, right: 0, bottom: 0,
-                            transform: `translate(${this._calcTranslate( i - index ) + 'px'}) scale(${i == index - 1 || i == index + 1 ? .5 : 1})`,
-                            transition: !dragged ? 'transform .275s ease-in-out' : 'unset',
+                            transform: `translate(${this._calcTranslate( i - index ) + 'px'}) scale(${this._calcScale(i - index)})`,
+                            transition: !dragged ? 'transform .275s ease-in-out, opacity .275s ease' : 'unset',
+                            opacity: dragged && 
+                                (index > 0 || this._dragDir() == -1) && 
+                                (index < images.length - 1 || this._dragDir() == 1) && 
+                                (Math.abs(i - index) == 1 || i - index == 0) 
+                                    ? this._calcOpacity(i - index) 
+                                    : 1,
                         }}>
                             { 
                                 typeof image == 'string'

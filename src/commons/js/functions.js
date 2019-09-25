@@ -2,12 +2,18 @@ export const clamp = function(number, min, max) {
     return number > max ? max : number < min ? min : number;
 }
 
-export const firstTouchNormalize = function(touchEvent) {
+export const getFirstTouch = function(touchEvent) {
 
-    console.log(touchEvent.touches && touchEvent.touches[0]);
+    const { touches } = touchEvent;
+
+    if(touches && touches[0])
+        return touches[0]
+    else
+        return touchEvent
 
 }
 
 export default {
     clamp,
+    getFirstTouch,
 }
