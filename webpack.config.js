@@ -18,6 +18,7 @@ module.exports = {
       styles: path.resolve(__dirname, './src/commons/styles')
     }
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {
