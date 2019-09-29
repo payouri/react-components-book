@@ -5,6 +5,7 @@ import TimePicker from 'components/TimePicker/TimePicker';
 import Input from 'components/Input/Input';
 import InputWithDatePicker from 'components/InputWithDatePicker/InputWithDatePicker';
 import Carousel from 'components/Carousel/Carousel';
+import StoryLike from './components/StoryLike/StoryLike';
 
 // console.log(new Request({...r}));
 class App extends Component {
@@ -14,10 +15,11 @@ class App extends Component {
     render() {
         return (
             <>
-                <Carousel />
-                <Input type='number' onChange={(v, valid, e) => console.log(v, valid, e)} />
+                <StoryLike />
                 <TimePicker />
+                <Input type='number' onChange={(v, valid, e) => console.log(v, valid, e)} />
                 <InputWithDatePicker />
+                <Carousel />
             </>
         )
     }
