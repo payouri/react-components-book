@@ -6,7 +6,21 @@ import styles from './TimePicker.scss';
 const HOURS_IN_DAY = 24,
     MINUTES_IN_HOUR = 60;
 
-const Picker = function({ n, onClick }) {
+const calcCirclePoint = function(cx, cy, r, ang) {
+
+    return {
+        x: cx + r * Math.cos(ang),
+        y: cy + r * Math.sin(ang)
+    }
+
+}
+
+const ClockHand = function({ angle, hour, type }) {
+    
+    // calcCirclePoint
+}
+
+const Picker = function({ n, label, onClick }) {
     return <div className={styles['picker']} onClick={() => onClick(n)}>{n < 10 ? '0'+n : n}</div>
 }
 Picker.propTypes = {
@@ -14,27 +28,29 @@ Picker.propTypes = {
     onClick: PropTypes.func.isRequired,
 }
 
-const PickerWrapper = function({ type, n, children }) {
+const PickerWrapper = function({ type, n, children, ...rest }) {
 
     const step = type == 'hours' ? 1 : 5,
         max = type == 'hours' ? HOURS_IN_DAY : MINUTES_IN_HOUR;
 
-    const angle = 2 * Math.PI / max / step;
-    const startingAngle = Math.PI / 2
+    const angle = 2 * Math.PI / max * step;
+    const startingAngle = Math.PI / 2;
 
     const cx = 256/2 - 16,
         cy = 256/2 - 8,
         r = 180/2;
     
+    const { x, y } = calcCirclePoint(cx, cy, r, angle * n - startingAngle);
+
     return (
-        <div style={{
+        <div {...rest} style={{
             position: 'absolute',
-            left: cx + r * Math.cos(angle * n - startingAngle),
-            top: cy + r * Math.sin(angle * n - startingAngle)
+            left: x,
+            top: y,
         }}>
             {children}
         </div>
-    )
+    );
 
 }
 PickerWrapper.propTypes = {
@@ -62,10 +78,16 @@ class TimePicker extends Component {
         this.state = {
             hours: null,
             minutes: null,
+            count: 0,
             mode: 'hours',
         }
 
+        this.anim = null;
+
+        this._pickTime = this._pickTime.bind(this)
+
     }
+
     toggleMode() {
 
         const { mode } = this.state;
@@ -75,29 +97,48 @@ class TimePicker extends Component {
         })
 
     }
-    render() {
+
+    _pickTime(n) {
 
         const { mode } = this.state;
 
-        const renderPickers = function() {
+        this.setState({
+            [mode]: n,
+            mode: this.modes[mode],
+        }, () => console.log(this.state))
 
-            const minuteStep = 5;
+    }
 
-            return Array.from({length: mode == 'hours' ? HOURS_IN_DAY : MINUTES_IN_HOUR / minuteStep}, (v, k) => {
-                const n = mode == 'hours' ? k : k * minuteStep;
-                return (
-                    <PickerWrapper key={k} n={n} type={mode}>
-                        <Picker n={n} onClick={v => console.log(v)}/>
-                    </PickerWrapper>
-                )
+    _flow(force) {
 
-            })
-
+        if(force) {
+            this.anim = requestAnimationFrame(this._count);
+        } else {
+            cancelAnimationFrame(this.anim);
         }
+
+    }
+    render() {
+
+        const { mode } = this.state;
+        const minuteStep = 5;
 
         return (
             <div className={styles['time-picker-wrapper']}>
-                { renderPickers() }
+                {
+                    Array.from({length: mode == 'hours' ? HOURS_IN_DAY : MINUTES_IN_HOUR / minuteStep}, (v, k) => {
+
+                        const n = mode == 'hours' ? k : k * minuteStep;
+                        
+                        // console.log(k, v, n);
+                        return (
+                            <PickerWrapper key={k} n={k} type={mode}>
+                                <Picker type='hours' className={`${styles['picker']} ${styles['picker-active']}`} n={n} onClick={() => { this._pickTime(n) }}/>
+                            </PickerWrapper>
+                        )
+        
+                    })
+                }
             </div>
         )
     }
