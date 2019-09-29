@@ -6,13 +6,19 @@ import Image from 'components/Image/Image';
 
 import styles from './Carousel.scss'
 
+/**
+ * TODO
+ * Indicators, auto slide and looping images 
+ * 
+*/
+
 // React.lazy()
 
 const Slide = function({ height, width, ...rest }) {
 
     return (
         <div style={{ height, width, pointerEvents: 'none' }} >
-            <Image {...rest} height={height} width={width} />
+            <Image {...rest} height={height} width={width} lazy={true}/>
         </div>
     )
 
@@ -106,7 +112,7 @@ class Carousel extends Component {
         const isTouch = type.includes('touch');
         
         if(isTouch) { 
-            mouseEvent.persist();
+            // mouseEvent.persist();
             screenX = isTouch ? getFirstTouch(mouseEvent)['screenX'] : screenX;
         }
         if((type == 'mousedown' || type == 'touchstart') && screenX)
