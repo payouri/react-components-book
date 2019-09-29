@@ -1,0 +1,62 @@
+@import '../../commons/styles/main.scss';
+
+
+$indicators-wrapper-height: 4px;
+.stories-outer {
+    overflow: hidden;
+    padding: .5rem .75rem;
+    max-width: 100%;
+    width: 100vw;
+}
+.stories-inner {
+    overflow-y: hidden;
+    overflow-x: scroll;
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 0 .25rem;
+    padding-bottom: .5rem;
+    margin-bottom: -1.5rem;
+    width: 100%;
+}
+.story-wrapper {
+    height: 3rem;
+    width: 3rem;
+    flex: 0 0 3rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    user-select: none;
+    &:not(:first-child) {
+        margin-left: .25rem;
+    }
+    &:not(:last-child) {
+        margin-right: .25rem;
+    }
+}
+.overlay-container {
+    background: rgba(#181818, .325);
+    z-index: 9999;
+    padding: 1.5rem 2rem;
+}
+.overlay-image-wrapper {
+    height: calc(100% - #{$indicators-wrapper-height});
+    position: relative;
+}
+.indicators-wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    border-bottom: 2px solid #000;
+}
+.indicator {
+    flex: 1;
+    height: $indicators-wrapper-height;
+    background-color: #666;
+    transition: background-color .125s ease-out;
+    &:not(:last-child) {
+        border-right: 4px solid #000;
+    }
+    &.active {
+        background-color: #fff;
+    }
+}
