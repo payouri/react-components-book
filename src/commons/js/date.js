@@ -42,10 +42,20 @@ export const yearFormats = [
     'numeric',
     '2-digit',
 ];
+export const minutesFormats = [
+    'numeric',
+    '2-digit',
+];
+export const hoursFormats = [
+    'numeric',
+    '2-digit',
+];
 export default {
     daysInMonth,
     getFirstDayOfTheMonth,
     getLastDayOfTheMonth,
+    hoursFormats,
+    minutesFormats,
     monthsFormats,
     weekdaysFormats,
     yearFormats,
