@@ -2,6 +2,10 @@ export const clamp = function(number, min, max) {
     return number > max ? max : number < min ? min : number;
 }
 
+export const generateUniqKey = () => {
+    return (new Date).getTime().toString(16)
+}
+
 export const getElementAt = function(iterable, n) {
     if(iterable.length == 0) {
         return undefined;
@@ -23,6 +27,7 @@ export const getFirstTouch = function(touchEvent) {
 
 export default {
     clamp,
+    generateUniqKey,
     getElementAt,
     getFirstTouch,
 }
