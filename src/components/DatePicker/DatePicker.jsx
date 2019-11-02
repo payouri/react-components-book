@@ -264,7 +264,7 @@ export default class DatePicker extends Component {
 
             return Array.from({length: m}, (v, k) => (
             
-                <div key={k} className={styles['month-wrapper']}>
+                <div key={k} className={styles['month-wrapper']} >
                     <Month month={k} 
                         today={this.today.getMonth() == k && this.today.getFullYear() == year } 
                         onClick={day => { this.handleMonthPick(day, onMonthClick) }}
@@ -358,6 +358,7 @@ DatePicker.propTypes = {
     initialDate: PropTypes.instanceOf(Date),
     startingDay: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
     onDateClick: PropTypes.func,
+    onMonthClick: PropTypes.func,
     locale: PropTypes.string,
     headingFormat: DayHeading.propTypes.format,
     monthTitleFormat: Title.propTypes.format,
