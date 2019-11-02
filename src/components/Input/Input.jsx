@@ -60,11 +60,10 @@ class Input extends Component {
     }
     render() {
 
+        const { inputRef, ...rest } = this.props;
         const { value } = this.state;
 
-        return (
-            <input {...this.props} className={`${styles['input']}`} value={value} onChange={this.handleInput}/>
-        )
+        return <input {...rest} ref={inputRef} className={`${styles['input']}`} value={this.props.value || value} onChange={this.handleInput}/>
     }
 }
 
