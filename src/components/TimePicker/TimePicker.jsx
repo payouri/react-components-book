@@ -16,8 +16,21 @@ const calcCirclePoint = function(cx, cy, r, ang) {
 }
 
 const ClockHand = function({ angle, hour, type }) {
-    
-    // calcCirclePoint
+
+    return (
+        <div style={{
+            backgroundColor: 'cornflowerblue',
+            height: 90,
+            left: 'calc(50% - 4px)',
+            position: 'absolute',
+            transform: `rotateZ(${angle}rad)`,
+            transformOrigin: 'bottom center',
+            top: 44,
+            width: 2,
+            // transition: 'transform .125s'
+        }}></div>
+    )
+
 }
 
 const Picker = function({ n, label, onClick }) {
@@ -28,7 +41,9 @@ Picker.propTypes = {
     onClick: PropTypes.func.isRequired,
 }
 
-const PickerWrapper = function({ type, n, children, ...rest }) {
+const PickerWrapper = function({ type, n, children, onMouseMove, ...rest }) {
+
+    const [ active, setActive ] = React.useState(false);
 
     const step = type == 'hours' ? 1 : 5,
         max = type == 'hours' ? HOURS_IN_DAY : MINUTES_IN_HOUR;
@@ -43,10 +58,17 @@ const PickerWrapper = function({ type, n, children, ...rest }) {
     const { x, y } = calcCirclePoint(cx, cy, r, angle * n - startingAngle);
 
     return (
-        <div {...rest} style={{
+        <div {...rest} onMouseMove={() => { setActive(true); typeof onMouseMove == 'function' && onMouseMove(angle * n) }} onMouseLeave={() => setActive(false)} style={{
             position: 'absolute',
             left: x,
             top: y,
+            backgroundColor: active ? 'cornflowerblue' : '',
+            borderRadius: '50%',
+            height: '1.5rem',
+            width: '1.5rem',
+            textAlign: 'center',
+            lineHeight: '1.5rem',
+            cursor: 'pointer',
         }}>
             {children}
         </div>
@@ -80,6 +102,7 @@ class TimePicker extends Component {
             minutes: null,
             count: 0,
             mode: 'hours',
+            clockAngle: 0,
         }
 
         this.anim = null;
@@ -98,14 +121,39 @@ class TimePicker extends Component {
 
     }
 
+    _updateClockHand(angle) {
+
+        this.setState({
+            clockAngle: angle,
+        });
+
+    }
+
     _pickTime(n) {
 
+        const { onPickTime } = this.props;
         const { mode } = this.state;
 
         this.setState({
             [mode]: n,
             mode: this.modes[mode],
-        }, () => console.log(this.state))
+        }, () => {
+            
+            const { minutes, hours } = this.state;
+            
+            if(typeof minutes == 'number' && typeof hours == 'number' && mode == 'minutes') {
+                
+                const d = new Date();
+                d.setHours(hours, minutes, 0, 0);
+
+                typeof onPickTime == 'function' && onPickTime(d)
+
+                this.setState({
+                    hours: null,
+                    minutes: null,
+                })
+            }
+        })
 
     }
 
@@ -120,11 +168,14 @@ class TimePicker extends Component {
     }
     render() {
 
-        const { mode } = this.state;
-        const minuteStep = 5;
+        const { onDateClick, initialDate, initialTime, onPickTime, ...rest } = this.props
 
+        const { mode, clockAngle } = this.state;
+        const minuteStep = 5;
+        
         return (
-            <div className={styles['time-picker-wrapper']}>
+            <div className={styles['time-picker-wrapper']} {...rest }>
+                <ClockHand angle={ clockAngle }/>
                 {
                     Array.from({length: mode == 'hours' ? HOURS_IN_DAY : MINUTES_IN_HOUR / minuteStep}, (v, k) => {
 
@@ -132,7 +183,7 @@ class TimePicker extends Component {
                         
                         // console.log(k, v, n);
                         return (
-                            <PickerWrapper key={k} n={k} type={mode}>
+                            <PickerWrapper key={k} n={k} type={mode} onMouseMove={(angle) => this._updateClockHand(angle)}>
                                 <Picker type='hours' className={`${styles['picker']} ${styles['picker-active']}`} n={n} onClick={() => { this._pickTime(n) }}/>
                             </PickerWrapper>
                         )
@@ -145,11 +196,13 @@ class TimePicker extends Component {
 }
 
 TimePicker.propTypes = {
-    initialTime: PropTypes.instanceOf(Date),
+    initialTime: PropTypes.instanceOf(Date).isRequired,
+    onPickTime: PropTypes.func.isRequired,
 }
 
 TimePicker.defaultProps = {
     initialTime: new Date(),
+    onPickTime: () => {},
 }
 
 export default TimePicker;
