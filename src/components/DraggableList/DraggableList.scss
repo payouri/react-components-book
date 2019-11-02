@@ -1,0 +1,79 @@
+.draggable-list-outer {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    width: 20rem;
+    * {
+        box-sizing: border-box;
+    }
+    .list-inner {
+        user-select: none;
+    }
+    .list-item-wrapper {
+        height: 3rem;
+        width: 100%;
+        background: rgba(black, .1);
+        &:not(:first-child) {
+            margin-top: .25rem;
+        }
+        &:not(:last-child) {
+            margin-bottom: .25rem;
+        }
+    }
+    .list-item {
+        background: white;
+        height: 100%;
+        width: 100%;
+        line-height: 3rem;
+        padding-left: 1rem;
+        box-shadow: inset 0px 0px 1px 2px rgba(#000, .125);
+        cursor: grab;
+        display: flex;
+        > .label {
+            flex: 0 1 calc(100% - 4rem);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        > .order-controls {
+            flex: 0 0 2rem;
+            padding: 0.25rem;
+            width: 2rem;
+        }
+        > .deleteBtn {
+            margin: .25rem 0;
+            margin-right: .25rem;
+        }
+    }
+
+}
+.deleteBtn {
+    flex: 0 0 2rem;
+    width: 2rem;
+}
+.order-controls {
+    .order {
+        background: transparent;
+        border-color: transparent;
+        display: block;
+        padding: 0;
+        width: 100%;
+        &:first-child {
+            margin-bottom: 0.1rem;
+        }
+        &:last-child {
+            margin-top: 0.1rem;
+
+        }
+    }
+}
+.order-controls .order, .deleteBtn {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: pointer;
+    &:hover {
+        color: cornflowerblue;
+    }
+}
+.deleteBtn:hover {
+    color: crimson;
+}
