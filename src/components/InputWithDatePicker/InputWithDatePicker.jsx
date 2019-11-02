@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import DatePicker from '../DatePicker/DatePicker'
+import Input from 'components/Input/Input'
 import { monthsFormats, yearFormats, daysFormats } from '../../commons/js/date';
+
+import styles from './InputWithDropdown.scss';
 export class InputWithDatePicker extends Component {
 
     constructor(props) {
@@ -71,7 +74,7 @@ export class InputWithDatePicker extends Component {
                 })
         }, 0)
 
-    } 
+    }
     _validateDate(date) {
 
         const { validator } = this.props;
@@ -87,10 +90,10 @@ export class InputWithDatePicker extends Component {
         }
 
     }
-    handleInput({ target }) {
+    handleInput(value, valid, e) {
 
         this.setState({
-            value: target.value,
+            value,
         })
 
     }
@@ -100,9 +103,18 @@ export class InputWithDatePicker extends Component {
         const { focus, value, selectedDate } = this.state;
 
         return (
-            <div className="input-with-date-picker" onFocus={this.handleFocus} onBlur={this.handleBlur} onKeyDown={ this.handleKeyDown }>
-                <input pattern={validator instanceof RegExp ? validator.toString().substring(1, validator.toString().length - 1) : undefined}  ref={this.inputRef} value={value} onChange={this.handleInput}/>
-                { focus && <DatePicker initialDate={selectedDate} tabIndex="0" locale={locale} onDateClick={this.handleDatePick} onCancel={() => { this.handleKeyDown({key: 'Escape'}) }} /> }
+            <div className={styles["input-with-date-picker"]} 
+                onFocus={this.handleFocus} 
+                onBlur={this.handleBlur} 
+                onKeyDown={ this.handleKeyDown }>
+                <Input 
+                    pattern={validator instanceof RegExp ? validator.toString().substring(1, validator.toString().length - 1) : undefined}
+                    value={value}
+                    inputRef={this.inputRef}
+                    onChange={this.handleInput}
+                    placeholder='jj/mm/aaaa'
+                />
+                { focus && <DatePicker style={{ position: 'absolute', zIndex: 999, }} initialDate={selectedDate} tabIndex="0" locale={locale} onDateClick={this.handleDatePick} onCancel={() => { this.handleKeyDown({key: 'Escape'}) }} /> }
             </div>
         )
     }
