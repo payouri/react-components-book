@@ -1,6 +1,6 @@
 import React, { Component, Suspense } from 'react'
 import PropTypes from 'prop-types'
-import { debounce } from 'js/utils'
+import { debounce } from '@youri-kane/js_utils/EventUtils'
 import { clamp, getFirstTouch } from 'js/functions'
 import Image from 'components/Image/Image';
 
@@ -8,7 +8,7 @@ import styles from './Carousel.scss'
 
 /**
  * TODO
- * Indicators, auto slide and looping images 
+ * Indicators, auto slide and infinite looping images 
  * 
 */
 
