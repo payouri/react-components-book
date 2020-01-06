@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import styles from './ColorPicker.scss'
-import { distBetweenTwoPts, calcPointCoordsOnCircle } from '@youri-kane/js_utils/GeomUtils'
 import { clamp } from '@youri-kane/js_utils/MathUtils'
 import Icon from '../Icon/Icon'
 import UseWindowMouse from '../../hooks/UseMouse'
@@ -57,7 +56,7 @@ const ColorPicker = ({ onColorChange, initRed = 30, initGreen = 245, initBlue = 
 
     const pickerRef = useRef()
     const displayRef = useRef()
-
+    
     useEffect(() => {
         setAlpha(clamp((offsetAngle - angle) * -1 + r / (r * 2), 0, 1))
         return () => { }
