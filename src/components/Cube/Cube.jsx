@@ -156,3 +156,5 @@ Cube.defaultProps = {
     size: '66vmin',
     face: 'front',
 }
+
+export default Cube

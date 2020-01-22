@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Transition } from 'react-transition-group'
 import PropTypes from 'prop-types'
-import styles from './Tooltip.css'
+import styles from './Tooltip.scss'
 
 const Tooltip = ({ label, position, rootElem, show, offsetX, offsetY, style, ...rest }) => {
     const [pos, setPos] = useState({ left: null, top: null, right: null, bottom: null, })
@@ -16,7 +16,7 @@ const Tooltip = ({ label, position, rootElem, show, offsetX, offsetY, style, ...
             setPos({ left: null, top: null, right: null, bottom: null, })
         }
         return () => { setPos({ left: null, top: null, right: null, bottom: null, }) }
-    }, [rootElem])
+    }, [rootElem, show])
 
     const calcPosition = () => {
         const parentBCR = rootElem.parentNode.getBoundingClientRect()
@@ -32,14 +32,14 @@ const Tooltip = ({ label, position, rootElem, show, offsetX, offsetY, style, ...
                 })
             case 'left':
                 return ({
-                    left: `calc(${parentBCR.x - bcr.x - bcr.width / 2}px - 100%)`,
+                    left: `calc(${parentBCR.x - bcr.x - bcr.width / 2 + offsetX}px - 100%)`,
                     top: `calc(${bcr.y - parentBCR.y + bcr.height / 2 + offsetY}px)`,
                     right: null,
                     bottom: null,
                 })
             case 'right':
                 return ({
-                    right: `calc(${parentBCR.x - bcr.x - bcr.width / 2}px - 100%)`,
+                    right: `calc(${parentBCR.x - bcr.x - bcr.width / 2 + offsetX}px - 100%)`,
                     top: `calc(${bcr.y - parentBCR.y + bcr.height / 2 + offsetY}px)`,
                     left: null,
                     bottom: null,

@@ -188,7 +188,7 @@ OffCanvasMenu.propTypes = {
 
 OffCanvasMenu.defaultProps = {
 
-    open: true,
+    open: false,
     dragThreshold: 40,
     side: 'left',
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, memo } from 'react'
 import PropTypes from 'prop-types'
 
-import styles from './TextTyper.css'
+import styles from './TextTyper.scss'
 const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType, typeUntil, onDone, ...rest }) => {
 
     const [index, setIndex] = useState(startIndex)
@@ -19,7 +19,6 @@ const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType
                     setIndex(str.length)
                 if(index === str.length || index === typeUntil) {
                     setAnimate(true)
-                    console.log('object');
                     typeof onDone === 'function' && onDone()
                 }
             }
@@ -28,7 +27,6 @@ const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType
     }, [str, index])
 
     const type = () => {
-
         let newIndex = index + 1
         if(str[newIndex] === '<') {
 
@@ -36,7 +34,6 @@ const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType
 
         }
         setIndex(newIndex)
-
     }
     return (
         <div { ...rest} className={styles['about-me']}>
@@ -44,7 +41,7 @@ const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType
                 className={`${styles['my-text']} ${animate && styles['my-text-animated'] || ''}`}
                 dangerouslySetInnerHTML={{ __html: str.substring(0, index) }} />
             <span
-                style={{ position: "relative", top: -4 }}
+                style={{ position: "relative", top: '-.1em' }}
                 className={pausingIndexes.includes(index) || index == str.length || index == typeUntil ? styles['blinking-cursor'] : ''}>
                 |
             </span>
@@ -54,7 +51,7 @@ const TextTyper = ({ str, startIndex, pausingIndexes, pauseTime, timeBetweenType
 }
 
 TextTyper.propTypes = {
-    str: PropTypes.string,
+    str: PropTypes.string.isRequired,
     pausingIndexes: PropTypes.arrayOf(PropTypes.number),
     pauseTime: PropTypes.number,
     timeBetweenType: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
@@ -65,6 +62,8 @@ TextTyper.propTypes = {
 
 TextTyper.defaultProps = {
     startIndex: 0,
+    pausingIndexes: [],
+    timeBetweenType: 75
 }
 
 export default memo(TextTyper)
