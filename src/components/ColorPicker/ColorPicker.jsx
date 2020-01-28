@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import styles from './ColorPicker.scss'
-import { clamp } from '@youri-kane/js_utils/MathUtils'
+import { clamp } from '@youri-kane/js_utils/src/MathUtils'
 import Icon from '../Icon/Icon'
 import UseWindowMouse from '../../hooks/UseMouse'
 const AlphaHandle = ({ handleMouse, alpha, angle }) => {

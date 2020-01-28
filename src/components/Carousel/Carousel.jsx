@@ -1,6 +1,6 @@
 import React, { Component, Suspense } from 'react'
 import PropTypes from 'prop-types'
-import { debounce } from '@youri-kane/js_utils/EventUtils'
+import { debounce } from '@youri-kane/js_utils/src/EventUtils'
 import { clamp, getFirstTouch } from 'js/functions'
 import Image from 'components/Image/Image';
 
@@ -99,7 +99,7 @@ class Carousel extends Component {
         this._calcScale = this._calcScale.bind(this);
         this._dragDir = this._dragDir.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
-        this._winHandler = debounce(this.onWindowResize, 75, false);
+        this._winHandler = EventUtils.debounce(this.onWindowResize, 75, false);
         
     }
 
