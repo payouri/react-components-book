@@ -1,0 +1,21 @@
+@use 'sass:map';
+.bg-purple {
+  background-color: #C200FB;
+}
+
+.bg-blue {
+  background-color: #5BC0EB;
+}
+
+.bg-yellow {
+  background-color: #FFD23F;
+}
+
+.bg-green {
+  background-color: #44BBA4;
+}
+
+.bg-red {
+  background-color: #F13030;
+}
+/*# sourceMappingURL=Colors.css.map */

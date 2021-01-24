@@ -1,0 +1,39 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Node 14",
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.js",
+        "src/**/*.jsx"
+    ],
+    "exclude": [
+        "node_modules",
+        "global.d.ts",
+        "./types",
+        "*.scss"
+    ],
+    "compilerOptions": {
+        "paths": {
+            "js/*": ["src/commons/js/*"]
+        },
+        "lib": [
+            "es2020",
+            "dom",
+            "ESNext"
+        ],
+        "typeRoots": [
+            "./types",
+            "./node_modules/@types"
+        ],
+        "jsx": "preserve",
+        "allowJs": true,
+        "module": "commonjs",
+        "target": "es2020",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node"
+    }
+}

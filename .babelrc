@@ -6,12 +6,12 @@
             {
                 "useBuiltIns": "entry"
             }
-        ]
+        ],
+        "@babel/preset-typescript"
     ],
     "plugins": [
         "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-transform-regenerator"/*,
+        "@babel/plugin-transform-regenerator" /*,
         "@babel/plugin-syntax-dynamic-import" */
-    ],
-
+    ]
 }

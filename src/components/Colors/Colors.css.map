@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "ACAA,IAAI,CAAJ,UAAI;ADGA,AAAA,UAAU,CAAI;EACV,gBAAgB,ECSV,OAAO;CDRhB;;AAFD,AAAA,QAAQ,CAAM;EACV,gBAAgB,ECUZ,OAAO;CDTd;;AAFD,AAAA,UAAU,CAAI;EACV,gBAAgB,ECWV,OAAO;CDVhB;;AAFD,AAAA,SAAS,CAAK;EACV,gBAAgB,ECYX,OAAO;CDXf;;AAFD,AAAA,OAAO,CAAO;EACV,gBAAgB,ECab,OAAO;CDZb",
+    "sources": [
+        "Colors.scss",
+        "../../commons/sass/variables.scss"
+    ],
+    "names": [],
+    "file": "Colors.css"
+}
