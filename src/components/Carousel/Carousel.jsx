@@ -99,7 +99,7 @@ class Carousel extends Component {
         this._calcScale = this._calcScale.bind(this);
         this._dragDir = this._dragDir.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
-        this._winHandler = EventUtils.debounce(this.onWindowResize, 75, false);
+        this._winHandler = debounce(this.onWindowResize, 75, false);
         
     }
 

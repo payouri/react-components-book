@@ -1,11 +1,20 @@
 const path = require('path')
 
 module.exports = {
-  stories: ['../stories/**/*.stories.js'],
+  typescript: {
+    check: false,
+    checkOptions: {},
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+    },
+  },
+  stories: ['../stories/**/*.stories.js', '../stories/**/*.stories.jsx', '../stories/**/*.stories.tsx'],
   addons: ['@storybook/addon-actions', '@storybook/addon-links'],
   webpackFinal: async config => {
     // do mutation to the config
-    config.resolve.extensions = ['.js', '.jsx']
+    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
     config.resolve.alias = {
       components: path.resolve(__dirname, '../src/components'),
       hoc: path.resolve(__dirname, '../src/HOC'),
@@ -17,6 +26,13 @@ module.exports = {
     // ]
     config.module.rules.push(
       {
+        test: /\.(js|jsx|ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      },
+      {
         test: /\.s?css$/,
         use: [
           {
@@ -25,9 +41,10 @@ module.exports = {
           {
             loader: "css-loader",
             options: {
-              modules: true,
+              modules: {
+                localIdentName: "[name]_[local]_[hash:base64]"
+              },
               importLoaders: 1,
-              localIdentName: "[name]_[local]_[hash:base64]",
               sourceMap: true,
             }
           },

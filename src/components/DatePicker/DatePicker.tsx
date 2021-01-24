@@ -191,7 +191,7 @@ interface DatePickerStates {
   mode: DatePickerModes;
 }
 
-export default class DatePicker extends Component<
+class DatePicker extends Component<
   DatePickerProps,
   DatePickerStates
 > {
@@ -464,3 +464,5 @@ export default class DatePicker extends Component<
     );
   }
 }
+
+export default DatePicker;
