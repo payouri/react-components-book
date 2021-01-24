@@ -1,10 +1,17 @@
 {
     "parser": "@typescript-eslint/parser",
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint/eslint-plugin",
+        "prettier"
     ],
     "rules": {
-        "@typescript-eslint/rule-name": "error"
+        // "@typescript-eslint/rule-name": "error"
+        "@typescript-eslint/explicit-module-boundary-types": [
+            "warning",
+            {
+                "allowTypedFunctionExpressions": true
+            }
+        ]
     },
     "extends": [
         "eslint:recommended",
@@ -15,5 +22,5 @@
         "amd": true,
         "browser": true,
         "node": true
-    }
+    },
 }

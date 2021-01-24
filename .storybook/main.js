@@ -1,17 +1,8 @@
 const path = require('path')
 
 module.exports = {
-  typescript: {
-    check: false,
-    checkOptions: {},
-    reactDocgen: 'react-docgen-typescript',
-    reactDocgenTypescriptOptions: {
-      shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
-    },
-  },
-  stories: ['../stories/**/*.stories.js', '../stories/**/*.stories.jsx', '../stories/**/*.stories.tsx'],
-  addons: ['@storybook/addon-actions', '@storybook/addon-links'],
+  stories: ["../stories/**/*.stories.(ts|tsx|js|jsx|mdx)"],
+  addons: ['react-docgen', '@storybook/addon-actions', '@storybook/addon-controls', '@storybook/addon-links'],
   webpackFinal: async config => {
     // do mutation to the config
     config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']

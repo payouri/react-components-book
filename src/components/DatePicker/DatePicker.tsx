@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, CSSProperties } from "react";
 import PropTypes from "prop-types";
 import Icon from "../Icon/Icon";
 import {
@@ -95,8 +95,9 @@ const Day = function ({ day, today, onClick }: DayProps) {
         const { key, target } = keyEvent;
 
         if (key == "Enter" || key == "Space") onClick(day);
-        else if (key == "Escape" && target instanceof HTMLElement)
+        else if (key == "Escape" && target instanceof HTMLElement) {
           target.blur();
+        }
       }}
       onClick={() => onClick(day)}
     >
@@ -172,14 +173,15 @@ const EmptyPlaceholderDay = function () {
 };
 EmptyPlaceholderDay.propTypes = {};
 
-interface DatePickerProps {
+interface DatePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   initialDate: Date;
   startingDay: number;
   locale: string;
   headingFormat: DayHeadingProps["format"];
   monthTitleFormat: Intl.DateTimeFormatOptions;
-  onDateClick: (selected: DatePickerStates["selected"]) => void;
-  onMonthClick: (selected: DatePickerStates["month"]) => void;
+  onDateClick?: (selected: DatePickerStates["selected"]) => void;
+  onMonthClick?: (selected: DatePickerStates["month"]) => void;
+  onCancel?: () => void;
 }
 
 type DatePickerModes = "day" | "month";
@@ -191,10 +193,7 @@ interface DatePickerStates {
   mode: DatePickerModes;
 }
 
-class DatePicker extends Component<
-  DatePickerProps,
-  DatePickerStates
-> {
+class DatePicker extends Component<DatePickerProps, DatePickerStates> {
   static Title = Title;
   static Day = Day;
   static DayHeading = DayHeading;
@@ -247,7 +246,7 @@ class DatePicker extends Component<
     this.handleDayPick = this.handleDayPick.bind(this);
     this.toggleGridMode = this.toggleGridMode.bind(this);
   }
-  toggleGridMode() {
+  toggleGridMode(): void {
     const { mode } = this.state;
 
     this.setState({

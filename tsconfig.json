@@ -10,12 +10,16 @@
     "exclude": [
         "node_modules",
         "global.d.ts",
-        "./types",
         "*.scss"
     ],
     "compilerOptions": {
         "paths": {
-            "js/*": ["src/commons/js/*"]
+            "js/*": [
+                "src/commons/js/*"
+            ],
+            "components/*": [
+                "src/components/*"
+            ]
         },
         "lib": [
             "es2020",

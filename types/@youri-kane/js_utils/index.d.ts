@@ -1,1 +1,0 @@
-declare module '@youri-kane/js_utils';

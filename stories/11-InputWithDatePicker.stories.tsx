@@ -7,6 +7,6 @@ export default {
 }
 export const Default = () => (
     <div>
-        <InputWithDatePicker />
+        <InputWithDatePicker value={"14/02/1993"} />
     </div>
 )
