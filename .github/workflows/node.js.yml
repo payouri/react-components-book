@@ -31,9 +31,9 @@ jobs:
     - run: npm install @babel/helper-compilation-targets --save-dev
     - run: npm run build-storybook --if-present
     - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: build # The folder the action should deploy.
-          CLEAN: true # Automatically remove deleted files
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: build # The folder the action should deploy.
+        CLEAN: true # Automatically remove deleted files
