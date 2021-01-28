@@ -1,9 +1,0 @@
-{
-    "version": 3,
-    "mappings": "AAAA,AAAA,uBAAuB,CAAC;EACpB,QAAQ,EAAE,QACd;CAAC",
-    "sources": [
-        "InputWithDropdown.scss"
-    ],
-    "names": [],
-    "file": "InputWithDropdown.css"
-}

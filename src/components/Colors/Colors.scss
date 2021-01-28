@@ -1,7 +1,0 @@
-@import '../../commons/sass/variables.scss';
-
-@each $color, $value in $colors {
-    .bg-#{$color} {
-        background-color: $value;
-    }
-}
