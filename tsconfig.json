@@ -13,12 +13,14 @@
         "*.scss"
     ],
     "compilerOptions": {
+        "baseUrl": "./src",
+        "outDir": "dist",
         "paths": {
             "js/*": [
-                "src/commons/js/*"
+                "commons/js/*"
             ],
             "components/*": [
-                "src/components/*"
+                "components/*"
             ]
         },
         "lib": [

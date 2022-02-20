@@ -1,12 +1,12 @@
-import React from 'react'
-import InputWithTimePicker from '../src/components/InputWithTimePicker/InputWithTimePicker'
+import React from "react";
+import InputWithTimePicker from "../src/components/InputWithTimePicker/InputWithTimePicker";
 
 export default {
-    title: 'Input with Time Picker',
-    component: InputWithTimePicker,
-}
+  title: "Input with Time Picker",
+  component: InputWithTimePicker,
+};
 export const Default = () => (
-    <div>
-        <InputWithTimePicker />
-    </div>
-)
+  <div>
+    <InputWithTimePicker />
+  </div>
+);
