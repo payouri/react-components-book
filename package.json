@@ -33,6 +33,7 @@
     "file-loader": "",
     "html-loader": "",
     "html-webpack-plugin": "",
+    "lodash.isequal": "^4.5.0",
     "mini-css-extract-plugin": "",
     "node-sass": "",
     "postcss-loader": "",
@@ -57,11 +58,12 @@
     "@storybook/builder-webpack5": "^6.4.19",
     "@storybook/manager-webpack5": "^6.4.19",
     "@storybook/testing-library": "^0.0.9",
+    "@types/lodash.isequal": "^4.5.5",
     "@types/react-transition-group": "",
     "babel-loader": "^8.2.3",
     "react-docgen-typescript-loader": "",
-    "typescript": "^4.5.4",
-    "ts-loader": ""
+    "ts-loader": "",
+    "typescript": "^4.5.4"
   },
   "peerDependencies": {
     "react": ">=17.0.1"

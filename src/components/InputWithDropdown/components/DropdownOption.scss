@@ -1,0 +1,16 @@
+.option {
+  padding: 0.375rem 0 0.375rem calc(2rem - 1px);
+  border-color: transparent;
+  border-style: solid;
+  border-width: 2px 0;
+  height: 2rem;
+  box-sizing: border-box;
+  cursor: default;
+  color: #232323;
+  scroll-snap-align: center;
+  &:hover,
+  &:focus,
+  &:focus-within {
+    background-color: rgba(18, 18, 18, 0.055);
+  }
+}

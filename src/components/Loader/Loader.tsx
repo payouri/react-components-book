@@ -1,7 +1,14 @@
-import React, { Component, CSSProperties } from "react";
 import PropTypes from "prop-types";
+import React, { CSSProperties } from "react";
 
 import styles from "./Loader.scss";
+
+export const LoaderPropsTypes = {
+  background: PropTypes.string,
+  color: PropTypes.string,
+  style: PropTypes.object,
+  size: PropTypes.oneOf(["sm", "md", "lg"]).isRequired,
+};
 
 export interface LoaderProps {
   background?: CSSProperties["background"];
@@ -10,33 +17,29 @@ export interface LoaderProps {
   size: "sm" | "md" | "lg";
 }
 
-export class Loader extends Component<LoaderProps> {
-  static propTypes = {
-    background: PropTypes.string,
-    color: PropTypes.string,
-    style: PropTypes.object,
-    size: PropTypes.oneOf(["sm", "md", "lg"]).isRequired,
+export const LoaderDefaultProps: LoaderProps = {
+  size: "md",
+};
+
+export const Loader = (props: LoaderProps) => {
+  const thisProps = {
+    ...LoaderDefaultProps,
+    ...props,
   };
 
-  static defaultProps = {
-    size: "md",
-  };
+  return (
+    <div className={styles["loader-outer"]} style={thisProps.style}>
+      <div
+        className={`${styles["loader"]} ${styles[`loader-${thisProps.size}`]}`}
+        style={{
+          background: thisProps.background,
+          borderColor: thisProps.color,
+        }}
+      ></div>
+    </div>
+  );
+};
 
-  render() {
-    return (
-      <div className={styles["loader-outer"]} style={this.props.style}>
-        <div
-          className={`${styles["loader"]} ${
-            styles[`loader-${this.props.size}`]
-          }`}
-          style={{
-            background: this.props.background,
-            borderColor: this.props.color,
-          }}
-        ></div>
-      </div>
-    );
-  }
-}
+Loader.propTypes = LoaderPropsTypes;
 
 export default Loader;

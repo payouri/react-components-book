@@ -18,7 +18,7 @@ module.exports = {
     };
 
     config.module.rules.push({
-      test: /\.s?css$/,
+      test: /\.scss$/,
       use: [
         "style-loader",
         {

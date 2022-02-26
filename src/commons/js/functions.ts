@@ -3,10 +3,23 @@ export const clamp = function (number: number, min: number, max: number) {
 };
 
 export const generateUniqKey = () => {
-  return new Date().getTime().toString(16);
+  return `${new Date().getTime().toString(16)}_${Math.random()}`;
 };
 
-export const getElementAt = function (iterable: any[], n: number) {
+export const getMatchingIndex = function <T>(iterable: T[], n: number): number {
+  if (iterable.length == 0) {
+    return -1;
+  }
+
+  const newIndex = n % iterable.length;
+
+  return newIndex < 0 ? iterable.length - 1 : newIndex;
+};
+
+export const getElementAt = function <T>(
+  iterable: T[],
+  n: number
+): T | undefined {
   if (iterable.length == 0) {
     return undefined;
   }

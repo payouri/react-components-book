@@ -1,389 +1,363 @@
-import React, { ChangeEvent, Component } from "react";
-import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+
+import { getMatchingIndex } from "../../commons/js/functions";
+import { useKeysPress } from "../../hooks/useKeys";
+import { usePrevious } from "../../hooks/usePrevious";
+import { DropdownOption } from "./components/DropdownOption";
+import { InputWidthDropdownDefaultProps } from "./defaults";
 import styles from "./InputWithDropdown.scss";
+import { InputWidthDropdownPropsTypes } from "./propTypes";
+import { useInputWithDropdownState } from "./state";
+import { InputWithDropdownProps } from "./types";
 
 //todo add loader
-
-interface CustomComponentProps {
-  label?: DropdownOptionProps["label"];
-  index?: DropdownOptionProps["index"];
-}
-
-export interface DropdownOptionProps<
-  CustomComponentProps extends {
-    label?: DropdownOptionProps["label"];
-    index?: DropdownOptionProps["index"];
-  } = {
-    label?: string;
-    index?: number;
-  }
+export interface InputWithDropdownState<
+  O extends { label: string; value: string | number }
 > {
-  label: string;
-  tabIndex?: number;
-  index?: number;
-  onClick?: (event: React.MouseEvent<HTMLLIElement>) => void;
-  CustomComponent?:
-    | string
-    | ((props: CustomComponentProps, context?: any) => any)
-    | (new (props: CustomComponentProps, context?: any) => any);
-}
-
-const DropdownOption = ({
-  CustomComponent,
-  label,
-  tabIndex,
-  index,
-  onClick,
-  ...rest
-}: DropdownOptionProps) => {
-  if (!CustomComponent)
-    return (
-      <li
-        className={styles["option"]}
-        onClick={onClick}
-        tabIndex={tabIndex || Number(0)}
-        data-index={index}
-      >
-        {label}
-      </li>
-    );
-  else
-    return (
-      <li tabIndex={tabIndex || Number(0)} onClick={onClick} data-index={index}>
-        <CustomComponent label={label} index={index} {...rest} />
-      </li>
-    );
-};
-DropdownOption.propTypes = {
-  CustomComponent: PropTypes.element,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  index: PropTypes.number.isRequired,
-  label: PropTypes.string,
-  onClick: PropTypes.func,
-  tabIndex: PropTypes.number,
-};
-
-export interface InputWithDropdownProps {
-  customOptionComponent?:
-    | string
-    | ((props: CustomComponentProps, context?: any) => any)
-    | (new (props: CustomComponentProps, context?: any) => any);
-  sortBy?: "value" | "label";
-  onChange: (state: InputWithDropdownState) => void;
-  options: { label: string; value: string | number }[];
-  onSubmit: (state: InputWithDropdownState) => void;
-}
-
-export interface InputWithDropdownState {
-  value:
-    | InputWithDropdownProps["options"][number]["label"]
-    | InputWithDropdownProps["options"][number]["value"];
+  value: InputWithDropdownProps<O>["options"][number];
   hasFocus: boolean;
   suggestionIndex: number;
   selectedIndex: number;
 }
 
-export class InputWithDropdown extends Component<
-  InputWithDropdownProps & typeof InputWithDropdown.defaultProps,
-  InputWithDropdownState
-> {
-  static defaultProps = {
-    autoCompleteOnBlur: false,
-    sortBy: "value",
-    options: [
+const getSorts = (
+  locale: string
+): {
+  [K in "label" | "value"]: (
+    a: InputWithDropdownProps["options"][number],
+    b: InputWithDropdownProps["options"][number]
+  ) => number;
+} => ({
+  label: (
+    a: InputWithDropdownProps["options"][number],
+    b: InputWithDropdownProps["options"][number]
+  ) => {
+    return a.label.localeCompare(b.label, locale, {
+      sensitivity: "base",
+    });
+  },
+  value: (
+    a: InputWithDropdownProps["options"][number],
+    b: InputWithDropdownProps["options"][number]
+  ) => {
+    if (typeof a.value === "string" && typeof b.value === "string") {
+      return a.label.localeCompare(b.label, locale, {
+        sensitivity: "base",
+      });
+    } else if (typeof a.value === "number" && typeof b.value === "number")
+      return a.value - b.value;
+    else return 0;
+  },
+});
+
+const matchText = (s1: string, s2: string) => {
+  const trimmedS2 = s2.trim().toLowerCase();
+  const trimmedS1 = s1.trim().substring(0, s2.length).toLowerCase();
+
+  return trimmedS1 === trimmedS2;
+};
+
+export const InputWithDropdown = <
+  O extends { label: string; value: string | number }
+>(
+  newProps: InputWithDropdownProps<O>
+) => {
+  const { setState, ...state } = useInputWithDropdownState<O>();
+  const props = {
+    ...InputWidthDropdownDefaultProps,
+    ...newProps,
+  };
+
+  const { customOptionComponent, options, onChange, onSubmit, selectedOption } =
+    props;
+  const { hasFocus, value, inputValue, suggestionIndex, selectedIndex } = state;
+  const previousHasFocus = usePrevious(hasFocus);
+
+  const sortByFns = useMemo(
+    () => getSorts(props.languageLocal),
+    [props.languageLocal]
+  );
+
+  const sortedOptions = useMemo(
+    () => [...options].sort(sortByFns[props.sortBy]),
+    [JSON.stringify(props.options)]
+  );
+
+  const filteredOptions = useMemo(
+    () =>
+      [...sortedOptions].filter(
+        (o) => matchText(o.label, inputValue) && o.value !== value?.value
+      ),
+    [JSON.stringify(sortedOptions), suggestionIndex, inputValue, value?.value]
+  );
+
+  const outerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const onArrowUp = useCallback(() => {
+    setState({
+      selectedIndex:
+        typeof selectedIndex !== "number"
+          ? 0
+          : getMatchingIndex(filteredOptions, selectedIndex - 1),
+    });
+  }, [selectedIndex, JSON.stringify(filteredOptions)]);
+
+  const onArrowDown = useCallback(() => {
+    setState({
+      selectedIndex:
+        typeof selectedIndex !== "number"
+          ? 0
+          : getMatchingIndex(filteredOptions, selectedIndex + 1),
+    });
+  }, [selectedIndex, JSON.stringify(filteredOptions)]);
+
+  useKeysPress({
+    getRoot: () => outerRef,
+    sequences: [
       {
-        value: 10,
-        label: "Ten",
+        preventDefault: true,
+        handler: onArrowUp,
+        keys: ["ArrowUp"],
       },
       {
-        value: 9,
-        label: "Nine",
-      },
-      {
-        value: 8,
-        label: "Eight",
-      },
-      {
-        value: 7,
-        label: "Seven",
-      },
-      {
-        value: 6,
-        label: "Six",
-      },
-      {
-        value: 5,
-        label: "Five",
-      },
-      {
-        value: 4,
-        label: "Four",
-      },
-      {
-        value: 3,
-        label: "Three",
-      },
-      {
-        value: 2,
-        label: "Two",
-      },
-      {
-        value: 2,
-        label: "One",
+        preventDefault: true,
+        handler: onArrowDown,
+        keys: ["ArrowDown"],
       },
     ],
-    locale: "fr",
-  };
+  });
 
-  static propTypes = {
-    customOptionComponent: PropTypes.func,
-    options: PropTypes.arrayOf(
-      PropTypes.shape({
-        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-          .isRequired,
-        label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      })
-    ),
-    sortBy: PropTypes.oneOf(["label", "value"]).isRequired,
-    locale: PropTypes.string,
-    autoCompleteOnBlur: PropTypes.bool,
-    onChange: PropTypes.func,
-    onSubmit: PropTypes.func,
-  };
+  const handleSubmit = ({ key }: React.KeyboardEvent) => {
+    const { suggestionIndex } = state;
 
-  static DropdownOption = DropdownOption;
-  private inputRef: React.RefObject<HTMLInputElement>;
-
-  constructor(
-    props: InputWithDropdownProps & typeof InputWithDropdown.defaultProps
-  ) {
-    super(props);
-    this.state = {
-      value: "",
-      hasFocus: false,
-      suggestionIndex: -1,
-      selectedIndex: -1,
-    };
-
-    this.inputRef = React.createRef();
-
-    const sortBy: {
-      [K in "label" | "value"]: (
-        a: InputWithDropdownProps["options"][number],
-        b: InputWithDropdownProps["options"][number]
-      ) => number;
-    } = {
-      label: (
-        a: InputWithDropdownProps["options"][number],
-        b: InputWithDropdownProps["options"][number]
-      ) => {
-        return a.label.localeCompare(b.label, this.props.locale, {
-          sensitivity: "base",
-        });
-      },
-      value: (
-        a: InputWithDropdownProps["options"][number],
-        b: InputWithDropdownProps["options"][number]
-      ) => {
-        if (typeof a.value === "string" && typeof b.value === "string") {
-          return a.label.localeCompare(b.label, this.props.locale, {
-            sensitivity: "base",
-          });
-        } else if (typeof a.value === "number" && typeof b.value === "number")
-          return a.value - b.value;
-        else return 0;
-      },
-    };
-
-    this.props.options.sort(
-      sortBy[
-        this.props.sortBy ?? (InputWithDropdown.defaultProps.sortBy as "value")
-      ]
-    );
-  }
-  handleSubmit = ({ key }: React.KeyboardEvent) => {
-    const { suggestionIndex } = this.state;
-    const { options } = this.props;
-
-    if (key == "Escape" && this.inputRef.current) {
-      this.inputRef.current.blur();
+    if (key == "Escape" && inputRef.current) {
+      inputRef.current.blur();
     }
 
     if (key == "Enter") {
-      const { onSubmit } = this.props;
-
-      if (this.inputRef.current) {
-        this.inputRef.current.blur();
+      if (inputRef.current) {
+        inputRef.current.blur();
       }
 
       if (suggestionIndex > -1) {
-        this.setState({
+        const newValue = sortedOptions[suggestionIndex];
+        setState({
+          value: newValue,
           selectedIndex: suggestionIndex,
-          value:
-            options[suggestionIndex].label || options[suggestionIndex].value,
+          inputValue: newValue.label,
         });
+        onSubmit?.(newValue);
+      } else {
+        onSubmit?.(undefined);
       }
-
-      onSubmit && onSubmit(this.state);
     }
   };
-  handleInput = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState(
-      { selectedIndex: -1, value: changeEvent.target.value },
-      () => {
-        const { options, onChange } = this.props,
-          { value } = this.state;
-        if (String(value).length > 0) {
-          const optsByLabel = options.map((o) =>
-            String(o.label || o.value)
-              .substr(0, String(value).length)
-              .toLowerCase()
-          );
 
-          this.setState(
-            {
-              suggestionIndex: optsByLabel.indexOf(String(value).toLowerCase()),
-            },
-            () => {
-              onChange && onChange(this.state);
-            }
-          );
-        } else
-          this.setState({ suggestionIndex: -1 }, () => {
-            onChange && onChange(this.state);
-          });
-      }
-    );
+  const handleInput = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ inputValue: changeEvent.target.value });
   };
-  handleFocusBlur = (FocusEvent: React.FocusEvent<HTMLDivElement>) => {
-    const { type, relatedTarget } = FocusEvent,
-      { options, autoCompleteOnBlur } = this.props;
 
-    const newState: Partial<InputWithDropdownState> = {
-      hasFocus: type == "focus",
+  useEffect(() => {
+    if (!inputValue) {
+      return setState({
+        selectedIndex: undefined,
+        suggestionIndex: -1,
+        value: undefined,
+      });
+    }
+
+    const selectedOption = sortedOptions.find(
+      ({ label }) => label === inputValue
+    );
+    if (selectedOption?.value !== value) {
+      return setState({
+        value: selectedOption,
+      });
+    }
+
+    const autoCompleteIndex = sortedOptions.findIndex(({ label }) =>
+      matchText(label, inputValue)
+    );
+    return setState({
+      value: undefined,
+      suggestionIndex: autoCompleteIndex,
+    });
+  }, [inputValue, value]);
+
+  useEffect(() => {
+    if (selectedOption?.value !== value?.value) {
+      onChange(value);
+    }
+  }, [value]);
+
+  const handleFocusBlur = (FocusEvent: React.FocusEvent<HTMLInputElement>) => {
+    const { type, relatedTarget } = FocusEvent;
+
+    const newHasFocus =
+      type === "focus" ||
+      !!(
+        relatedTarget &&
+        outerRef.current &&
+        outerRef.current.contains(relatedTarget)
+      );
+
+    const newState: Partial<InputWithDropdownState<O>> = {
+      hasFocus: newHasFocus,
+      selectedIndex:
+        !newHasFocus && previousHasFocus ? undefined : selectedIndex,
     };
 
-    // if(autoCompleteOnBlur) {
+    setState(newState);
+  };
 
-    let index = -1;
-
+  useEffect(() => {
     if (
-      relatedTarget &&
-      (relatedTarget as HTMLElement).dataset &&
-      (relatedTarget as HTMLElement).dataset.index
+      inputRef.current &&
+      hasFocus &&
+      inputValue.length &&
+      hasFocus !== previousHasFocus
     ) {
-      index = Number((relatedTarget as HTMLElement).dataset.index);
+      inputRef.current.setSelectionRange(inputValue.length, inputValue.length);
     }
+  }, [hasFocus, inputValue.length]);
 
-    newState.selectedIndex = index;
-
-    this.setState({ ...this.state, ...newState }, () => {
-      if (this.state.selectedIndex > -1) {
-        this.setState({
-          value:
-            options[this.state.selectedIndex].label ||
-            options[this.state.selectedIndex].value,
-          suggestionIndex: this.state.selectedIndex,
-        });
-      }
-    });
+  const handleOptionClick = (
+    newValueIndex: number,
+    newValue?: InputWithDropdownProps<O>["options"][number]
+  ) => {
+    if (newValueIndex < 0 || (!newValue && value?.value !== newValue)) {
+      setState({
+        selectedIndex: undefined,
+        value: newValue,
+      });
+    } else if (
+      newValueIndex >= 0 &&
+      newValue &&
+      newValue.value !== value?.value
+    ) {
+      setState({
+        selectedIndex: undefined,
+        value: newValue,
+        inputValue:
+          sortedOptions.find((option) => option.value === newValue.value)
+            ?.label ?? "",
+      });
+      inputRef?.current?.blur();
+    }
   };
-  handleOptionClick = ({ optIndex }: { optIndex: number }) => {};
-  matchText = (s1: string, s2: string) => {
-    s2 = s2.trim();
-    s1 = s1.trim();
 
-    s1 = s1.substr(0, s2.length).toLowerCase();
-
-    return s1 === s2.toLowerCase();
-  };
-  render() {
-    const { customOptionComponent, options } = this.props;
-    const { hasFocus, value, suggestionIndex, selectedIndex } = this.state;
-
-    return (
-      <div className={styles["input-with-dropdown"]}>
-        {hasFocus && (
-          <div className={styles["dropdown-wrapper"]}>
-            <div className={styles["suggestion"]}>
-              {suggestionIndex > -1
-                ? this.state.value +
-                  String(
-                    options[suggestionIndex].label ||
-                      options[suggestionIndex].value
-                  ).substr(String(this.state.value).length)
-                : ""}
-            </div>
-            <ul className={styles["dropdown-inner"]}>
-              {options.reduce((acc, option, index, optionsArr) => {
-                let { value, label, ...otherProps } = option;
-
-                let toMatch = String(label || value);
-
-                if (
-                  this.matchText(toMatch, String(this.state.value)) &&
-                  index != suggestionIndex
-                ) {
-                  toMatch =
-                    this.state.value +
-                    toMatch.substr(String(this.state.value).length);
-
-                  acc.push(
-                    <DropdownOption
-                      key={index}
-                      label={toMatch}
-                      value={value}
-                      index={index}
-                      {...otherProps}
-                      CustomComponent={customOptionComponent}
-                      onClick={(e) =>
-                        this.handleOptionClick({ ...e, optIndex: index })
-                      }
-                    />
-                  );
-                }
-                if (
-                  index == optionsArr.length - 1 &&
-                  acc.length == 0 &&
-                  suggestionIndex == -1
-                )
-                  acc.push(
-                    <DropdownOption
-                      key={-1}
-                      label={"Aucun résultat"}
-                      value={""}
-                      index={-1}
-                      CustomComponent={customOptionComponent}
-                      onClick={(e) =>
-                        this.handleOptionClick({ ...e, optIndex: -1 })
-                      }
-                    />
-                  );
-
-                return acc;
-              }, [] as JSX.Element[])}
-            </ul>
+  return (
+    <div ref={outerRef} className={styles["input-with-dropdown"]}>
+      {hasFocus && (
+        <div className={styles["dropdown-wrapper"]}>
+          <div className={styles["suggestion"]}>
+            {(selectedIndex || -1) > -1 && filteredOptions.length
+              ? `${inputValue}${filteredOptions[selectedIndex!].label.substring(
+                  inputValue.length
+                )}`
+              : suggestionIndex > -1
+              ? `${inputValue}${sortedOptions[suggestionIndex].label.substring(
+                  inputValue.length
+                )}`
+              : ""}
           </div>
-        )}
-        <input
-          onBlur={this.handleFocusBlur}
-          onChange={this.handleInput}
-          onFocus={this.handleFocusBlur}
-          onKeyDown={this.handleSubmit}
-          ref={this.inputRef}
-          value={
-            selectedIndex > -1
-              ? options[selectedIndex].label || options[selectedIndex].value
-              : value
-          }
-          style={{
-            boxShadow: !value ? styles["input-shadow"]["boxShadow"] : null,
-          }}
-          type="text"
-        ></input>
-      </div>
-    );
-  }
-}
+          <ul className={styles["dropdown-inner"]}>
+            {filteredOptions.reduce((acc, option, index, optionsArr) => {
+              const { value: optionValue, label, ...otherProps } = option;
+
+              acc.push(
+                <DropdownOption
+                  onClose={() => {
+                    setState({
+                      hasFocus: false,
+                    });
+                    inputRef.current?.blur();
+                  }}
+                  onSearch={(search) => {
+                    setState({
+                      inputValue: `${inputValue}${search}`,
+                      selectedIndex: undefined,
+                    });
+                    setTimeout(() => {
+                      inputRef.current?.focus();
+                    }, 0);
+                  }}
+                  onBackspace={() => {
+                    setState({
+                      inputValue: inputValue.slice(0, inputValue.length - 1),
+                    });
+                  }}
+                  isSelected={index === selectedIndex}
+                  key={optionValue}
+                  label={inputValue + label.substring(inputValue.length)}
+                  value={optionValue}
+                  index={index}
+                  {...otherProps}
+                  CustomComponent={customOptionComponent}
+                  onSelect={() => handleOptionClick(index, option)}
+                />
+              );
+
+              if (
+                index == optionsArr.length - 1 &&
+                acc.length === 0 &&
+                suggestionIndex === -1 &&
+                !value?.value
+              )
+                acc.push(
+                  <DropdownOption
+                    onClose={() => {
+                      setState({
+                        hasFocus: false,
+                      });
+                      inputRef.current?.blur();
+                    }}
+                    onSearch={(search) => {
+                      setState({
+                        inputValue: search,
+                        selectedIndex: undefined,
+                      });
+                      setTimeout(() => {
+                        inputRef.current?.focus();
+                      }, 0);
+                    }}
+                    onBackspace={() => {
+                      setState({
+                        inputValue: inputValue.slice(0, inputValue.length - 1),
+                      });
+                    }}
+                    key={-1}
+                    label={"Aucun résultat"}
+                    value={""}
+                    index={-1}
+                    CustomComponent={customOptionComponent}
+                    onSelect={() => {}}
+                  />
+                );
+
+              return acc;
+            }, [] as JSX.Element[])}
+          </ul>
+        </div>
+      )}
+      <input
+        onBlur={handleFocusBlur}
+        onChange={handleInput}
+        onFocus={handleFocusBlur}
+        onKeyDown={handleSubmit}
+        ref={inputRef}
+        value={inputValue}
+        style={{
+          boxShadow: !value ? styles["input-shadow"]["boxShadow"] : null,
+        }}
+        type="text"
+      ></input>
+    </div>
+  );
+};
+
+InputWithDropdown.propTypes = InputWidthDropdownPropsTypes;
+InputWithDropdown.DropdownOption = DropdownOption;
 
 export default InputWithDropdown;
