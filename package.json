@@ -48,7 +48,7 @@
     "storybook-addon-react-docgen": "",
     "style-loader": "",
     "tailwindcss": "",
-    "webpack": "^5.0.0",
+    "webpack": "^5.76.0",
     "webpack-cli": ""
   },
   "devDependencies": {
